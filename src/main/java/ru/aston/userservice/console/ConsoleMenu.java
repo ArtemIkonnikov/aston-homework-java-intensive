@@ -2,8 +2,8 @@ package ru.aston.userservice.console;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aston.userservice.dao.UserDao;
 import ru.aston.userservice.dto.UserDto;
+import ru.aston.userservice.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +13,11 @@ public class ConsoleMenu {
 
     private static final Logger log = LoggerFactory.getLogger(ConsoleMenu.class);
 
-    private final UserDao userDao;
+    private final UserService userService;
     private final Scanner scanner;
 
-    public ConsoleMenu(UserDao userDao) {
-        this.userDao = userDao;
+    public ConsoleMenu(UserService userService) {
+        this.userService = userService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -88,7 +88,7 @@ public class ConsoleMenu {
         }
 
         UserDto user = new UserDto(name, email, age);
-        UserDto saved = userDao.save(user);
+        UserDto saved = userService.create(user);
         System.out.println("Created: " + saved);
     }
 
@@ -99,7 +99,7 @@ public class ConsoleMenu {
             System.out.println("Invalid id");
             return;
         }
-        Optional<UserDto> user = userDao.findById(id);
+        Optional<UserDto> user = userService.findById(id);
         if (user.isPresent()) {
             System.out.println(user.get());
         } else {
@@ -108,7 +108,7 @@ public class ConsoleMenu {
     }
 
     private void findAllUsers() {
-        List<UserDto> users = userDao.findAll();
+        List<UserDto> users = userService.findAll();
         if (users.isEmpty()) {
             System.out.println("No users found");
             return;
@@ -127,7 +127,7 @@ public class ConsoleMenu {
             return;
         }
 
-        Optional<UserDto> existing = userDao.findById(id);
+        Optional<UserDto> existing = userService.findById(id);
         if (existing.isEmpty()) {
             System.out.println("User with id=" + id + " not found");
             return;
@@ -158,7 +158,7 @@ public class ConsoleMenu {
             }
         }
 
-        userDao.update(user);
+        userService.update(user);
         System.out.println("Updated: " + user);
     }
 
@@ -169,7 +169,7 @@ public class ConsoleMenu {
             System.out.println("Invalid id");
             return;
         }
-        boolean deleted = userDao.deleteById(id);
+        boolean deleted = userService.deleteById(id);
         if (deleted) {
             System.out.println("User with id=" + id + " deleted");
         } else {

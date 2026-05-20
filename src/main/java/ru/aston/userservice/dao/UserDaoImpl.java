@@ -1,6 +1,7 @@
 package ru.aston.userservice.dao;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -18,10 +19,20 @@ public class UserDaoImpl implements UserDao {
 
     private static final Logger log = LoggerFactory.getLogger(UserDaoImpl.class);
 
+    private final SessionFactory sessionFactory;
+
+    public UserDaoImpl() {
+        this(HibernateUtil.getSessionFactory());
+    }
+
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
     @Override
     public UserDto save(UserDto dto) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User user = UserMapper.toEntity(dto);
             session.persist(user);
@@ -41,7 +52,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<UserDto> findById(Long id) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             User user = session.get(User.class, id);
             return Optional.ofNullable(UserMapper.toDto(user));
         } catch (Exception e) {
@@ -52,7 +63,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<UserDto> findAll() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             List<User> users = session
                     .createQuery("FROM User ORDER BY id", User.class)
                     .getResultList();
@@ -71,7 +82,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void update(UserDto dto) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User user = UserMapper.toEntity(dto);
             session.merge(user);
@@ -91,7 +102,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean deleteById(Long id) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             User user = session.get(User.class, id);
             if (user == null) {

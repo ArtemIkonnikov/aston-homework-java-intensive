@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import ru.aston.userservice.console.ConsoleMenu;
 import ru.aston.userservice.dao.UserDao;
 import ru.aston.userservice.dao.UserDaoImpl;
+import ru.aston.userservice.service.UserService;
+import ru.aston.userservice.service.UserServiceImpl;
 import ru.aston.userservice.util.HibernateUtil;
 
 public class Main {
@@ -15,7 +17,8 @@ public class Main {
         log.info("Starting user-service application");
 
         UserDao userDao = new UserDaoImpl();
-        ConsoleMenu menu = new ConsoleMenu(userDao);
+        UserService userService = new UserServiceImpl(userDao);
+        ConsoleMenu menu = new ConsoleMenu(userService);
 
         try {
             menu.run();
