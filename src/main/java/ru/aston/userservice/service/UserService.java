@@ -13,7 +13,7 @@ public interface UserService {
 
     List<UserDto> findAll();
 
-    void update(UserDto user);
+    Optional<UserDto> update(Long id, UserDto user);
 
     boolean deleteById(Long id);
 }

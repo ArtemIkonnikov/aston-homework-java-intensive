@@ -2,49 +2,78 @@ package ru.aston.userservice.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.aston.userservice.dao.UserDao;
+import org.springframework.stereotype.Service;
 import ru.aston.userservice.dto.UserDto;
+import ru.aston.userservice.entity.User;
+import ru.aston.userservice.mapper.UserMapper;
+import ru.aston.userservice.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
-    public UserServiceImpl(UserDao userDao) {
-        this.userDao = userDao;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public UserDto create(UserDto user) {
-        log.info("Creating user: name={}, email={}", user.getName(), user.getEmail());
-        return userDao.save(user);
+    public UserDto create(UserDto dto) {
+        log.info("Creating user: name={}, email={}", dto.getName(), dto.getEmail());
+        User user = UserMapper.toEntity(dto);
+        User saved = userRepository.save(user);
+        return UserMapper.toDto(saved);
     }
 
     @Override
     public Optional<UserDto> findById(Long id) {
         log.info("Looking up user by id={}", id);
-        return userDao.findById(id);
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return Optional.of(UserMapper.toDto(user.get()));
+        }
+        return Optional.empty();
     }
 
     @Override
     public List<UserDto> findAll() {
         log.info("Listing all users");
-        return userDao.findAll();
+        List<User> users = userRepository.findAll();
+        List<UserDto> result = new ArrayList<>();
+        for (User user : users) {
+            result.add(UserMapper.toDto(user));
+        }
+        return result;
     }
 
     @Override
-    public void update(UserDto user) {
-        log.info("Updating user id={}", user.getId());
-        userDao.update(user);
+    public Optional<UserDto> update(Long id, UserDto dto) {
+        log.info("Updating user id={}", id);
+        Optional<User> existing = userRepository.findById(id);
+        if (existing.isEmpty()) {
+            return Optional.empty();
+        }
+        User user = existing.get();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setAge(dto.getAge());
+        User saved = userRepository.save(user);
+        return Optional.of(UserMapper.toDto(saved));
     }
 
     @Override
     public boolean deleteById(Long id) {
         log.info("Deleting user id={}", id);
-        return userDao.deleteById(id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

@@ -1,13 +1,27 @@
 package ru.aston.userservice.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 public class UserDto {
 
     private Long id;
+
+    @NotBlank
     private String name;
+
+    @NotBlank
+    @Email
     private String email;
+
+    @NotNull
+    @Min(0)
     private Integer age;
+
     private LocalDateTime createdAt;
 
     public UserDto() {
