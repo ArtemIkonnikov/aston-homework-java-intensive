@@ -26,11 +26,9 @@ public class UserMapper {
             return null;
         }
         User user = new User();
-        user.setId(dto.getId());
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
         user.setAge(dto.getAge());
-        user.setCreatedAt(dto.getCreatedAt());
         return user;
     }
 }

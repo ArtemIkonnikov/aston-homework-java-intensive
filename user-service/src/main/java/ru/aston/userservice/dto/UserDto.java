@@ -1,5 +1,6 @@
 package ru.aston.userservice.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 public class UserDto {
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotBlank
@@ -22,6 +24,7 @@ public class UserDto {
     @Min(0)
     private Integer age;
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime createdAt;
 
     public UserDto() {

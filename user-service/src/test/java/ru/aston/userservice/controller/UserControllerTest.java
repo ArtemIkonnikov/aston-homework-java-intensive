@@ -36,20 +36,19 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    void getAll_returnsList() throws Exception {
+    void getAll_returnsCollectionWithLinks() throws Exception {
         UserDto dto = new UserDto("Рик", "rick@example.com", 30);
         dto.setId(1L);
         when(userService.findAll()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Рик"))
-                .andExpect(jsonPath("$[0].email").value("rick@example.com"));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._links.self.href").exists());
     }
 
     @Test
-    void getById_existing_returns200() throws Exception {
+    void getById_existing_returns200WithSelfLink() throws Exception {
         UserDto dto = new UserDto("Морти", "morty@example.com", 25);
         dto.setId(2L);
         when(userService.findById(2L)).thenReturn(Optional.of(dto));
@@ -57,7 +56,8 @@ class UserControllerTest {
         mockMvc.perform(get("/users/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(2))
-                .andExpect(jsonPath("$.name").value("Морти"));
+                .andExpect(jsonPath("$.name").value("Морти"))
+                .andExpect(jsonPath("$._links.self.href").exists());
     }
 
     @Test
@@ -80,7 +80,8 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Рик"));
+                .andExpect(jsonPath("$.name").value("Рик"))
+                .andExpect(jsonPath("$._links.self.href").exists());
     }
 
     @Test
@@ -115,7 +116,8 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Рик Updated"))
-                .andExpect(jsonPath("$.age").value(31));
+                .andExpect(jsonPath("$.age").value(31))
+                .andExpect(jsonPath("$._links.self.href").exists());
     }
 
     @Test
